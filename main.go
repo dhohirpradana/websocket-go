@@ -45,8 +45,17 @@ func main() {
 }
 
 func (server *Server) handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			// Allow all connections
+			return true
+		},
+	}
+
 	// Upgrade HTTP connection to WebSocket connection.
-	conn, err := websocket.Upgrade(w, r, nil, 1024, 1024)
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
