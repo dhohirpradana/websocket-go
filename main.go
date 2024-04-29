@@ -61,7 +61,14 @@ func (server *Server) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer conn.Close()
+	defer func() {
+		// Close connection and unregister client.
+		conn.Close()
+		clientID := r.URL.Query().Get("client_id")
+		if clientID != "" {
+			server.unregister <- clientID
+		}
+	}()
 
 	// Register client.
 	clientID := r.URL.Query().Get("client_id")
